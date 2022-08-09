@@ -23,4 +23,4 @@ jobs:
     steps:
     - uses: actions/checkout@v3
     - name: Build the Docker image
-      run: docker build . --file docker/Dockerfile --tag ruanjf/n8n:${{ inputs.n8n_version }}-${{ inputs.node_version }} --build-arg N8N_VERSION=${{ inputs.n8n_version }}
+      run: docker build docker/ --tag ruanjf/n8n:${{ inputs.n8n_version }}-${{ inputs.node_version }} --build-arg N8N_VERSION=${{ inputs.n8n_version }}
