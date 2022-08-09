@@ -31,9 +31,9 @@ jobs:
           context: "{{defaultContext}}:docker"
           push: true
           tags: ruanjf/n8n:${{ inputs.n8n_version }}-${{ inputs.node_version }}
-          build-args:
-            NODE_VERSION: ${{ inputs.node_version }}
-            N8N_VERSION: ${{ inputs.n8n_version }}
+          build-args: |
+            NODE_VERSION=${{ inputs.node_version }}
+            N8N_VERSION=${{ inputs.n8n_version }}
 
       # - uses: actions/checkout@v3
       # - name: Build the Docker image
