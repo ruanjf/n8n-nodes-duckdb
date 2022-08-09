@@ -1,4 +1,4 @@
-name: Docker Image CI
+name: Publish Docker image
 
 on:
   workflow_dispatch:
@@ -15,12 +15,26 @@ on:
         type: string
 
 jobs:
-
-  build:
-
+  push_to_registry:
     runs-on: ubuntu-latest
-
     steps:
-    - uses: actions/checkout@v3
-    - name: Build the Docker image
-      run: docker build docker/ --tag ruanjf/n8n:${{ inputs.n8n_version }}-${{ inputs.node_version }} --build-arg N8N_VERSION=${{ inputs.n8n_version }}
+      - name: Check out the repo
+        uses: actions/checkout@v3
+      - name: Login to DockerHub
+        uses: docker/login-action@v2
+        with:
+          username: ${{ secrets.DOCKERHUB_USERNAME }}
+          password: ${{ secrets.DOCKERHUB_TOKEN }}
+      - name: Build and push
+        uses: docker/build-push-action@v3
+        with:
+          context: "{{defaultContext}}:docker"
+          push: true
+          tags: ruanjf/n8n:${{ inputs.n8n_version }}-${{ inputs.node_version }}
+          build-args:
+            NODE_VERSION: ${{ inputs.node_version }}
+            N8N_VERSION: ${{ inputs.n8n_version }}
+
+      # - uses: actions/checkout@v3
+      # - name: Build the Docker image
+      #   run: docker build docker/ --tag ruanjf/n8n:${{ inputs.n8n_version }}-${{ inputs.node_version }} --build-arg N8N_VERSION=${{ inputs.n8n_version }}

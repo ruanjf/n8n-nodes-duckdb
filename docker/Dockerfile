@@ -1,4 +1,6 @@
-FROM node:16-bullseye
+ARG NODE_VERSION=16-bullseye
+
+FROM node:$NODE_VERSION
 
 ARG N8N_VERSION
 
