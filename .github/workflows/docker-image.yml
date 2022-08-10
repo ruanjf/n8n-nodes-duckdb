@@ -34,12 +34,8 @@ jobs:
         with:
           context: docker/
           push: true
-          tags: ruanjf/n8n:${{ inputs.n8n_version }}-${{ inputs.node_version }}
+          tags: ${{ secrets.DOCKERHUB_USERNAME }}/n8n:${{ inputs.n8n_version }}-${{ inputs.node_version }}
           platforms: linux/amd64,linux/arm64,linux/arm/v7
           build-args: |
             NODE_VERSION=${{ inputs.node_version }}
             N8N_VERSION=${{ inputs.n8n_version }}
-
-      # - uses: actions/checkout@v3
-      # - name: Build the Docker image
-      #   run: docker build docker/ --tag ruanjf/n8n:${{ inputs.n8n_version }}-${{ inputs.node_version }} --build-arg N8N_VERSION=${{ inputs.n8n_version }}
