@@ -1,5 +1,4 @@
 import {
-	BINARY_ENCODING,
 	IExecuteFunctions
 } from 'n8n-core';
 import {
@@ -34,11 +33,22 @@ export class DuckDB implements INodeType {
 				type: 'string',
 				typeOptions: {
 					alwaysOpenEditWindow: true,
+					rows: 10,
 				},
 				required: true,
 				default: '',
 				placeholder: `select 'hello'`,
 				description: 'The SQL code to execute',
+				// noDataExpression: true,
+			},
+			{
+				displayName: 'Result Index',
+				name: 'index',
+				type: 'number',
+				required: false,
+				default: 0,
+				placeholder: `1`,
+				description: 'Which index as output. start from 1',
 				// noDataExpression: true,
 			},
 		],
@@ -58,47 +68,30 @@ export class DuckDB implements INodeType {
 		// value the parameter "myString" resolves to.
 		// (This could be a different value for each item in case it contains an expression)
 		try {
-			const queryQueue = items.map((item, index) => {
-				return new Promise((resolve, reject) => {
-					const sql = this.getNodeParameter('sql', index) as string;
-					db.all(sql, function(err: any, res: any) {
-						if (err) {
-							reject(`sql: ${sql}, ${err}`)
-						} else {
-							resolve(res)
-						}
-					});
-				});
-				// return db.query(rawQuery);
+			const queryQueue = items.flatMap((item, index) => {
+				const sql = this.getNodeParameter('sql', index) as string;
+				return sql.split(/;\n+/)
+					.filter(s => !s.match(/^[\s\n]*$/g))
+					.map(s => {
+						return new Promise((resolve, reject) => {
+							db.all(s, function(err: any, res: any) {
+								if (err) {
+									reject(`sql: ${s}, ${err}`)
+								} else {
+									resolve({ sql: s, result: res })
+								}
+							});
+						});
+					})
 			});
 
-			const queryResult = (await Promise.all(queryQueue) as any[]).reduce((collection, result) => {
-				// const [rows, fields] = result;
-
-				// if (Array.isArray(rows)) {
-				// 	return collection.concat(rows);
-				// }
-
-				// collection.push(rows);
-
-				collection.push(result);
-
-				return collection;
-			}, []);
-
+			let queryResult = await Promise.all(queryQueue) as any[];
+			const index = this.getNodeParameter('index', 0) as number;
+			if (index > 0 && queryResult.length > 0) {
+				queryResult = index <= queryQueue.length ? queryResult[index-1].result : null
+			}
 			returnItems = this.helpers.returnJsonArray(queryResult as unknown as IDataObject[]);
 
-			// item = items[itemIndex];
-
-			// const sql = this.getNodeParameter('sql', itemIndex) as string;
-			// db.all(sql, function(err: any, res: any) {
-			// 	if (err) {
-			// 		throw err;
-			// 	}
-			// 	console.log(res[0].fortytwo)
-			// });
-
-			// item.json['myString'] = myString;
 		} catch (error) {
 			// This node should never fail but we want to showcase how
 			// to handle errors.

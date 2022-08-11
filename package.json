@@ -1,6 +1,6 @@
 {
   "name": "n8n-nodes-duckdb",
-  "version": "0.0.5",
+  "version": "0.0.12",
   "description": "",
   "keywords": [
     "n8n-community-node-package",
