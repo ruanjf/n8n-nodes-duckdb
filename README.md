@@ -7,6 +7,8 @@
 
 ## Need use Debian bullseye
 
+Image support arm architecture
+
 ```
 docker pull ruanjf/n8n:0.189.1-16-bullseye
 ```
