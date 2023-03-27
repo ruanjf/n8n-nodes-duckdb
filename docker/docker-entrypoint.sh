@@ -10,6 +10,7 @@ if [ "$#" -gt 0 ]; then
   # Got started with arguments
   exec gosu node "$@"
 else
+	ulimit -c 0
   # Got started without arguments
   exec gosu node n8n
 fi
